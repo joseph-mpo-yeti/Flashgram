@@ -3,14 +3,10 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
+        android:title="Direct message"
         android:id="@+id/addNew"
-        android:title="New Post"
-        android:icon="@drawable/ic_baseline_add_circle_outline_24"
+        android:icon="@drawable/nav_inbox_paper_plane"
         app:showAsAction="always"
         />
 
-    <item
-        android:title="Logout"
-        android:id="@+id/mItemLogout"
-        />
 </menu>

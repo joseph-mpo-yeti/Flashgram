@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/homeMenuItem"
+        android:title="home"
+        android:icon="@drawable/instagram_home_outline_24" />
+    <item
+        android:id="@+id/addMenuItem"
+        android:title="new post"
+        android:icon="@drawable/instagram_new_post_outline_24" />
+    <item
+        android:id="@+id/profileMenuItem"
+        android:title="profile"
+        android:icon="@drawable/instagram_user_outline_24" />
+
+</menu>
