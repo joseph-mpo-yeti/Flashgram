@@ -55,7 +55,7 @@ Here's a walkthrough of implemented user stories:
   <img src="final_2_6.gif" width="220" style="margin: 25px;" />
 </div>
 
- <img src="final_7.gif" width="220" style="margin: 25px;" />
+ <img src="final_2_7.gif" width="220" style="margin: 25px;" />
 
 ## Notes
 
