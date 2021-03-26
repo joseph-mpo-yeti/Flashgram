@@ -2,6 +2,7 @@ package com.josephmpo.flashgram;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.Resources;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -14,28 +15,32 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import com.google.android.material.textfield.TextInputLayout;
 import com.josephmpo.flashgram.databinding.FragmentSignUpBinding;
 import com.parse.ParseException;
 import com.parse.ParseUser;
 import com.parse.SignUpCallback;
 
+import es.dmoral.toasty.Toasty;
+
 public class SignUpFragment extends Fragment {
     public static final String TAG = "SignUpFragment";
     FragmentSignUpBinding bnd;
     Context context;
-    AfterSignUp afterSignUp;
+    Helpers helpers;
 
-    public interface AfterSignUp {
+    public interface Helpers {
         void startMainActivity();
+        void hideKeyboard();
     }
 
     public SignUpFragment() {
         // Required empty public constructor
     }
 
-    public SignUpFragment(Context context, AfterSignUp afterSignUp) {
+    public SignUpFragment(Context context, Helpers helpers) {
         this.context = context;
-        this.afterSignUp = afterSignUp;
+        this.helpers = helpers;
     }
 
     @Override
@@ -53,14 +58,34 @@ public class SignUpFragment extends Fragment {
         bnd.btnSignup.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                String name = bnd.etName.getText().toString().trim();
                 String username = bnd.etUsername.getText().toString().trim();
                 String password = bnd.etPassword.getText().toString().trim();
 
                 ParseUser user = new ParseUser();
 
-                if(username.length() > 0 && password.length() > 0){
+                if(name.length() == 0) {
+                    bnd.etName.setError("Name required");
+                } else if (name.length() < 3) {
+                    bnd.etName.setError("Name too short");
+                } else if (username.length() == 0){
+                    bnd.etUsername.setError("Username required");
+                } else if (username.length() < 3){
+                    bnd.etUsername.setError("Username too short");
+                } else if(password.length() == 0){
+                    bnd.etPassword.setError("Password required");
+                } else if(password.length() < 6){
+                    bnd.etPassword.setError("Password too short");
+                } else {
                     user.setUsername(username);
                     user.setPassword(password);
+                    user.put("bio", "");
+                    user.put("website", "");
+                    user.put("fullName", name);
+                    user.put("following", 0);
+                    user.put("followers", 0);
+                    user.put("posts", 0);
+                    user.put("verified", false);
 
                     user.signUpInBackground(new SignUpCallback() {
                         @Override
@@ -68,13 +93,24 @@ public class SignUpFragment extends Fragment {
                             if(e == null){
                                 bnd.etPassword.setText("");
                                 bnd.etUsername.setText("");
-                                afterSignUp.startMainActivity();
+                                helpers.startMainActivity();
                             } else {
-                                Log.i(TAG, "done: login");
-                                Toast.makeText(context, e.getMessage(), Toast.LENGTH_SHORT).show();
+                                Toasty.error(context, e.getMessage(), Toasty.LENGTH_SHORT).show();
                             }
                         }
                     });
+                }
+            }
+        });
+
+
+        bnd.getRoot().setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(view.getId() != R.id.etPassword && view.getId() != R.id.etUsername){
+                    bnd.etPassword.clearFocus();
+                    bnd.etUsername.clearFocus();
+                    helpers.hideKeyboard();
                 }
             }
         });

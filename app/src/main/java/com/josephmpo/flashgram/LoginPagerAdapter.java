@@ -9,8 +9,8 @@ import androidx.fragment.app.FragmentPagerAdapter;
 
 public class LoginPagerAdapter extends FragmentPagerAdapter {
 
-    LoginFragment.AfterLogin afterLogin;
-    SignUpFragment.AfterSignUp afterSignUp;
+    LoginFragment.Helpers loginHelpers;
+    SignUpFragment.Helpers signupHelpers;
     Context context;
 
     public LoginPagerAdapter(@NonNull FragmentManager fm, int behavior) {
@@ -20,21 +20,21 @@ public class LoginPagerAdapter extends FragmentPagerAdapter {
     public LoginPagerAdapter(@NonNull FragmentManager fm,
         int behavior,
         Context context,
-        LoginFragment.AfterLogin afterLogin,
-        SignUpFragment.AfterSignUp afterSignUp) {
+        LoginFragment.Helpers loginHelpers,
+        SignUpFragment.Helpers signupHelpers) {
 
         super(fm, behavior);
 
         this.context = context;
-        this.afterLogin = afterLogin;
-        this.afterSignUp = afterSignUp;
+        this.loginHelpers = loginHelpers;
+        this.signupHelpers = signupHelpers;
     }
 
     @NonNull
     @Override
     public Fragment getItem(int position) {
-        if(position == 0) return new LoginFragment(context, afterLogin);
-        return new SignUpFragment(context, afterSignUp);
+        if(position == 0) return new LoginFragment(context, loginHelpers);
+        return new SignUpFragment(context, signupHelpers);
     }
 
     @Override

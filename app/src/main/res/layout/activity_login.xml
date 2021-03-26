@@ -8,8 +8,9 @@
 
     <ImageView
         android:id="@+id/logo"
+        android:transitionName="logo"
         android:layout_width="match_parent"
-        android:layout_height="200dp"
+        android:layout_height="150dp"
         android:src="@mipmap/ic_banner_foreground"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

@@ -1,6 +1,7 @@
 package com.josephmpo.flashgram;
 
 import android.app.Application;
+import android.util.Log;
 
 import com.parse.Parse;
 import com.parse.ParseClassName;
@@ -21,6 +22,8 @@ public class ParseApplication  extends Application {
                 .server("https://parseapi.back4app.com")
                 .build()
         );
+
+        Log.i("ParseApplication", "onCreate: " + System.currentTimeMillis());
 
     }
 

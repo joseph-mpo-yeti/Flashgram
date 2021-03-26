@@ -1,6 +1,7 @@
 package com.josephmpo.flashgram;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityOptionsCompat;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -28,8 +29,15 @@ public class SplashActivity extends AppCompatActivity {
                     nextActivity = LoginActivity.class;
                 }
                 Intent mainIntent = new Intent(SplashActivity.this, nextActivity);
-                startActivity(mainIntent);
-                finish();
+                if(nextActivity == LoginActivity.class){
+                    ActivityOptionsCompat options = ActivityOptionsCompat.
+                            makeSceneTransitionAnimation(SplashActivity.this, findViewById(R.id.logo), "logo");
+                    startActivity(mainIntent, options.toBundle());
+
+                } else {
+                    startActivity(mainIntent);
+                }
+                finishAfterTransition();
             }
         }, 1000);
     }

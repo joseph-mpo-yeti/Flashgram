@@ -3,11 +3,11 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/root"
     tools:context=".LoginFragment">
 
     <LinearLayout
-        android:layout_marginTop="36dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:padding="32dp"
@@ -31,6 +31,7 @@
 
 
             <com.google.android.material.textfield.TextInputLayout
+                app:passwordToggleEnabled="true"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense">

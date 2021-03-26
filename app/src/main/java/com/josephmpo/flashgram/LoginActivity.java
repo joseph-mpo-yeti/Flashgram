@@ -1,12 +1,16 @@
 package com.josephmpo.flashgram;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityOptionsCompat;
 import androidx.fragment.app.FragmentPagerAdapter;
 import androidx.viewpager.widget.ViewPager;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Toast;
 
 import com.google.android.material.snackbar.Snackbar;
@@ -18,12 +22,16 @@ import com.parse.ParseObject;
 import com.parse.ParseUser;
 import com.parse.SaveCallback;
 
-import bolts.Task;
+import es.dmoral.toasty.Toasty;
 
-public class LoginActivity extends AppCompatActivity implements SignUpFragment.AfterSignUp, LoginFragment.AfterLogin {
+
+public class LoginActivity extends AppCompatActivity implements SignUpFragment.Helpers, LoginFragment.Helpers {
 
     private ActivityLoginBinding binding;
     private LoginPagerAdapter adapter;
+    private Handler handler;
+    private Runnable task;
+    boolean exitApp;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,6 +39,17 @@ public class LoginActivity extends AppCompatActivity implements SignUpFragment.A
 
         binding = ActivityLoginBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+
+
+        handler = new Handler();
+        task = new Runnable() {
+            @Override
+            public void run() {
+                exitApp = false;
+            }
+        };
+
+        exitApp = false;
 
         adapter = new LoginPagerAdapter(
                 getSupportFragmentManager(),
@@ -61,8 +80,38 @@ public class LoginActivity extends AppCompatActivity implements SignUpFragment.A
 
     }
 
+
+    @Override
+    protected void onDestroy() {
+        handler.removeCallbacks(task);
+        super.onDestroy();
+    }
+
+    @Override
+    protected void onPause() {
+        handler.removeCallbacks(task);
+        super.onPause();
+    }
+
+    @Override
+    public void onBackPressed() {
+        if(exitApp){
+            finish();
+        } else {
+            exitApp = true;
+            Toasty.info(getApplicationContext(), "Press Back again to exit", Toasty.LENGTH_SHORT).show();
+            handler.postDelayed(task, 3000);
+        }
+    }
+
     public void startMainActivity(){
-        startActivity(new Intent(LoginActivity.this, MainActivity.class));
-        finish();
+        Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+        startActivity(intent);
+        finishAfterTransition();
+    }
+
+    public void hideKeyboard(){
+        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.hideSoftInputFromWindow(binding.getRoot().getWindowToken(), 0);
     }
 }

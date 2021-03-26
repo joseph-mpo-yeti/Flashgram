@@ -1,18 +1,22 @@
 package com.josephmpo.flashgram;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.FragmentPagerAdapter;
 import androidx.viewpager.widget.ViewPager;
 
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.Toast;
+import android.view.inputmethod.InputMethodManager;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.josephmpo.flashgram.databinding.ActivityMainBinding;
 import com.parse.LogOutCallback;
 import com.parse.ParseException;
@@ -20,7 +24,10 @@ import com.parse.ParseUser;
 
 import java.util.TimerTask;
 
-public class MainActivity extends AppCompatActivity implements ProfileFragment.SignOutInterface {
+import es.dmoral.toasty.Toasty;
+
+public class MainActivity extends AppCompatActivity implements ProfileFragment.SignOutInterface,
+        NewPostFragment.OpenHome {
     ActivityMainBinding binding;
     private Handler handler;
     private Runnable task;
@@ -45,10 +52,14 @@ public class MainActivity extends AppCompatActivity implements ProfileFragment.S
 
         setSupportActionBar(binding.toolbar);
 
-        binding.toolbar.setLogo(R.drawable.ic_baseline_photo_camera_24);
+        try {
+            getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_baseline_photo_camera_24);
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        } catch (NullPointerException e){
+            e.printStackTrace();
+        }
 
         binding.bottomNav.getMenu().getItem(0).setIcon(R.drawable.instagram_home_filled_24);
-
         binding.bottomNav.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
@@ -68,7 +79,7 @@ public class MainActivity extends AppCompatActivity implements ProfileFragment.S
         });
 
         MainViewPagerAdapter adapter = new MainViewPagerAdapter(getSupportFragmentManager(),
-                FragmentPagerAdapter.BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT, this);
+                FragmentPagerAdapter.BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT, this, this);
         binding.mainViewpager.setAdapter(adapter);
 
         binding.mainViewpager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
@@ -112,18 +123,6 @@ public class MainActivity extends AppCompatActivity implements ProfileFragment.S
     }
 
     @Override
-    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-         switch (item.getItemId()){
-             case R.id.addNew:
-                 startActivity(new Intent(MainActivity.this, CreatePostActivity.class));
-                 break;
-             default:
-
-        }
-        return super.onOptionsItemSelected(item);
-    }
-
-    @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu, menu);
         return super.onCreateOptionsMenu(menu);
@@ -144,26 +143,61 @@ public class MainActivity extends AppCompatActivity implements ProfileFragment.S
     @Override
     public void onBackPressed() {
         if(exitApp){
-            finish();
+            finishAfterTransition();
         } else {
             exitApp = true;
-            Toast.makeText(getApplicationContext(), "Pressed back button again to exit", Toast.LENGTH_SHORT).show();
+            Toasty.info(getApplicationContext(), "Press Back again to exit", Toasty.LENGTH_SHORT).show();
             handler.postDelayed(task, 3000);
         }
     }
 
     @Override
     public void signOut() {
-        ParseUser.logOutInBackground(new LogOutCallback() {
+        MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(this);
+        builder.setTitle("Sign Out");
+        builder.setMessage("Are you sure?");
+        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
             @Override
-            public void done(ParseException e) {
-                if(e == null){
-                    startActivity(new Intent(MainActivity.this, LoginActivity.class));
-                    finish();
-                } else {
-                    Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_LONG).show();
-                }
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
             }
         });
+        builder.setPositiveButton("Sign Out", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+                ParseUser.logOutInBackground(new LogOutCallback() {
+                    @Override
+                    public void done(ParseException e) {
+                        if(e == null){
+                            startActivity(new Intent(MainActivity.this, LoginActivity.class));
+                            finishAfterTransition();
+                        } else {
+                            Toasty.error(getApplicationContext(), e.getMessage(), Toasty.LENGTH_LONG).show();
+                        }
+                    }
+                });
+            }
+        });
+        builder.show();
     }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        if (item.getItemId() == android.R.id.home){
+            binding.mainViewpager.setCurrentItem(1, true);
+        }
+        return true;
+    }
+
+    public void hideKeyboard(){
+        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.hideSoftInputFromWindow(binding.getRoot().getWindowToken(), 0);
+    }
+
+    @Override
+    public void goHome() {
+        binding.mainViewpager.setCurrentItem(0, true);
+    }
+
 }
